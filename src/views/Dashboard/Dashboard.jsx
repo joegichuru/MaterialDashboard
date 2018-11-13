@@ -3,16 +3,16 @@ import PropTypes from "prop-types";
 // react plugin for creating charts
 import ChartistGraph from "react-chartist";
 import {
-  ContentCopy,
-  Store,
-  InfoOutline,
-  Warning,
-  DateRange,
-  LocalOffer,
-  Update,
-  ArrowUpward,
-  AccessTime,
-  Accessibility
+    ContentCopy,
+    Store,
+    InfoOutline,
+    Warning,
+    DateRange,
+    LocalOffer,
+    Update,
+    ArrowUpward,
+    AccessTime,
+    Accessibility, Home, PersonPin, People, Favorite, ThumbUp, ViewList, Smartphone, Error
 } from "@material-ui/icons";
 import { withStyles, Grid } from "material-ui";
 
@@ -32,11 +32,39 @@ import {
 } from "variables/charts";
 
 import dashboardStyle from "assets/jss/material-dashboard-react/dashboardStyle";
+import axios from "axios"
+import Snackbar from "@material-ui/core/Snackbar/Snackbar";
+import IconButton from "@material-ui/core/IconButton/IconButton";
 
 class Dashboard extends React.Component {
+  constructor(props){
+    super(props)
+      this.setState({
+          likes:0,
+          value:0,
+          views:0,
+          users:0,
+          items:0
+      })
+  }
   state = {
     value: 0
   };
+  componentDidMount(){
+      console.log("Token",localStorage.getItem("token"));
+      let auth="Bearer "+localStorage.getItem("token");
+      axios.get("http://127.0.0.1:8080/dashboard",{
+          headers:{
+              'Authorization':auth,
+              'Access-Control-Allow-Origin': '*'
+          }
+      }).then(response=>{
+          console.log(response.data)
+          this.setState(response.data)
+      }).catch(reason => {
+          console.log(reason)
+      })
+  }
   handleChange = (event, value) => {
     this.setState({ value });
   };
@@ -50,44 +78,42 @@ class Dashboard extends React.Component {
         <Grid container>
           <ItemGrid xs={12} sm={6} md={3}>
             <StatsCard
-              icon={ContentCopy}
+              icon={Home}
               iconColor="orange"
-              title="Used Space"
-              description="49/50"
-              small="GB"
-              statIcon={Warning}
-              statIconColor="danger"
-              statLink={{ text: "Get More Space...", href: "#pablo" }}
+              title="Items"
+              description={this.state.items}
+              statIcon={PersonPin}
+              statText={"All Items posted"}
             />
           </ItemGrid>
           <ItemGrid xs={12} sm={6} md={3}>
             <StatsCard
-              icon={Store}
+              icon={People}
               iconColor="green"
-              title="Revenue"
-              description="$34,245"
+              title="Users"
+              description={this.state.users}
               statIcon={DateRange}
-              statText="Last 24 Hours"
+              statText="All users created"
             />
           </ItemGrid>
           <ItemGrid xs={12} sm={6} md={3}>
             <StatsCard
-              icon={InfoOutline}
-              iconColor="red"
-              title="Fixed Issues"
-              description="75"
-              statIcon={LocalOffer}
-              statText="Tracked from Github"
-            />
-          </ItemGrid>
-          <ItemGrid xs={12} sm={6} md={3}>
-            <StatsCard
-              icon={Accessibility}
+              icon={ThumbUp}
               iconColor="blue"
-              title="Followers"
-              description="+245"
+              title="Likes"
+              description={this.state.likes}
+              statIcon={Favorite}
+              statText="Likes on Items"
+            />
+          </ItemGrid>
+          <ItemGrid xs={12} sm={6} md={3}>
+            <StatsCard
+              icon={Smartphone}
+              iconColor="red"
+              title="Views"
+              description={this.state.views}
               statIcon={Update}
-              statText="Just Updated"
+              statText="Views on Items"
             />
           </ItemGrid>
         </Grid>
@@ -104,20 +130,20 @@ class Dashboard extends React.Component {
                 />
               }
               chartColor="green"
-              title="Daily Sales"
+              title="Weekly Posts"
               text={
                 <span>
                   <span className={this.props.classes.successText}>
                     <ArrowUpward
                       className={this.props.classes.upArrowCardCategory}
                     />{" "}
-                    55%
+                    5%
                   </span>{" "}
-                  increase in today sales.
+                  increase in weekly posts.
                 </span>
               }
               statIcon={AccessTime}
-              statText="updated 4 minutes ago"
+              statText="updated 2 minutes ago"
             />
           </ItemGrid>
           <ItemGrid xs={12} sm={12} md={4}>
@@ -133,10 +159,18 @@ class Dashboard extends React.Component {
                 />
               }
               chartColor="orange"
-              title="Email Subscriptions"
-              text="Last Campaign Performance"
+              title="Account Creations"
+              text={
+                  <span>
+                  <span className={this.props.classes.successText}>
+                    {" "}
+                      3
+                  </span>{" "}
+                      average accounts created monthly
+                </span>
+              }
               statIcon={AccessTime}
-              statText="campaign sent 2 days ago"
+              statText="last one year"
             />
           </ItemGrid>
           <ItemGrid xs={12} sm={12} md={4}>
@@ -151,34 +185,10 @@ class Dashboard extends React.Component {
                 />
               }
               chartColor="red"
-              title="Completed Tasks"
-              text="Last Campaign Performance"
+              title="Views Today"
+              text="Items progressive views"
               statIcon={AccessTime}
-              statText="campaign sent 2 days ago"
-            />
-          </ItemGrid>
-        </Grid>
-        <Grid container>
-          <ItemGrid xs={12} sm={12} md={6}>
-            <TasksCard />
-          </ItemGrid>
-          <ItemGrid xs={12} sm={12} md={6}>
-            <RegularCard
-              headerColor="orange"
-              cardTitle="Employees Stats"
-              cardSubtitle="New employees on 15th September, 2016"
-              content={
-                <Table
-                  tableHeaderColor="warning"
-                  tableHead={["ID", "Name", "Salary", "Country","Year"]}
-                  tableData={[
-                    ["1", "Dakota Rice", "$36,738", "Niger","2018"],
-                    ["2", "Minerva Hooper", "$23,789", "Curaçao","2018"],
-                    ["3", "Sage Rodriguez", "$56,142", "Netherlands","2018"],
-                    ["4", "Philip Chaney", "$38,735", "Korea, South","2018"]
-                  ]}
-                />
-              }
+              statText="item hits last 6 hours"
             />
           </ItemGrid>
         </Grid>

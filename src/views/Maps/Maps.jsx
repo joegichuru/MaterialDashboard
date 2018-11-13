@@ -5,12 +5,14 @@ import {
   GoogleMap,
   Marker
 } from "react-google-maps";
+import axios from "axios";
 
 const CustomSkinMap = withScriptjs(
   withGoogleMap(props => (
+
     <GoogleMap
       defaultZoom={13}
-      defaultCenter={{ lat: 40.748817, lng: -73.985428 }}
+      defaultCenter={{ lat:-1.2921 , lng: 36.8219 }}
       defaultOptions={{
         scrollwheel: false,
         zoomControl: true,
@@ -76,20 +78,62 @@ const CustomSkinMap = withScriptjs(
         ]
       }}
     >
-      <Marker position={{ lat: 40.748817, lng: -73.985428 }} />
+        {props.items.map(item=>{
+            console.log(item)
+            return <Marker position={{ lat: item[1], lng:item[2] }} title={item[0]} />
+        })}
+        <Marker position={{ lat: -1.2921, lng:36.8219 }} />
+
     </GoogleMap>
   ))
 );
 
-function Maps({ ...props }) {
-  return (
-    <CustomSkinMap
-      googleMapURL="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE"
-      loadingElement={<div style={{ height: `100%` }} />}
-      containerElement={<div style={{ height: `100vh` }} />}
-      mapElement={<div style={{ height: `100%` }} />}
-    />
-  );
+class Maps extends React.Component{
+    constructor(props) {
+        super(props);
+        this.state={
+            items:[]
+        }
+    }
+
+    componentDidMount(){
+
+      //fetch items
+        //add markers
+        console.log("Token", localStorage.getItem("token"));
+        let auth = "Bearer " + localStorage.getItem("token");
+        axios.get("http://127.0.0.1:8080/dashboard/items", {
+            headers: {
+                'Authorization': auth,
+                'Access-Control-Allow-Origin': '*'
+            }
+        })
+            .then(response => {
+                console.log(response.data);
+                let items = response.data.map(u => {
+                    return [u.name,u.lat,u.lon]
+                });
+
+                this.setState({
+                    items: items
+                })
+
+            }).catch(reason => {
+            console.log(reason)
+        })
+    }
+
+    render(){
+      return (
+          <CustomSkinMap
+              googleMapURL="https://maps.googleapis.com/maps/api/js?key=AIzaSyDvsRz3eGgOgTWpd5Ag_0xaF1dv27xpDb8"
+              loadingElement={<div style={{ height: `100%` }} />}
+              items={this.state.items}
+              containerElement={<div style={{ height: `100vh` }} />}
+              mapElement={<div style={{ height: `100%` }} />}
+          />
+      );
+  }
 }
 
 export default Maps;
